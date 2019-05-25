@@ -1,10 +1,6 @@
  def builduser = null
  pipeline {
-    agent {
-        docker {
-            image 'digitalonus/terraform_hub:0.11.10'
-        }
-    }
+    agent any
     environment {
         DIGITALOCEAN_TOKEN = sh script:"vault kv get -field=token workshop/mons3rrat/digitalocean"
     }
