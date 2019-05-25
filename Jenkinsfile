@@ -1,9 +1,5 @@
  pipeline {
-    agent {
-        docker {
-            image 'digitalonus/terraform_hub:0.11.10'
-        }
-    }
+    agent any
     environment {
         VAULT_ADDR="http://178.128.150.71:8200"
         TOKEN = credentials('gh-token')
@@ -23,7 +19,6 @@
           when { expression { env.BRANCH_NAME ==~ /dev.*/ || env.BRANCH_NAME ==~ /PR.*/ || env.BRANCH_NAME ==~ /feat.*/ } }
           steps{
             sh '''
-            
                 vault login -method=github token=${TOKEN}
                 export DIGITALOCEAN_TOKEN=$(vault kv get -field=token workshop/mons3rrat/digitalocean)
                 cd terraform && terraform validate
