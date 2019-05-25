@@ -1,7 +1,8 @@
  pipeline {
     agent any
     environment {
-        DIGITALOCEAN_TOKEN = sh script:"vault kv get -field=token workshop/mons3rrat/digitalocean"
+        TOKEN = credentials('gh-token')
+        DO_PATH = sh script:"vault login -method=github token=${TOKEN} && vault kv get -field=token workshop/mons3rrat/digitalocean > /dev/null 2>&1"
     }
     triggers {
          pollSCM('H/5 * * * *')
