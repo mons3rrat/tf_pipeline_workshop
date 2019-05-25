@@ -2,7 +2,8 @@
     agent any
     environment {
         TOKEN = credentials('gh-token')
-        DIGITALOCEAN_TOKEN= sh script:"vault kv get -field=token workshop/mons3rrat/digitalocean"
+        LOGIN = sh script:"vault login -method=github token=${TOKEN}"
+        DIGITALOCEAN_TOKEN= sh(script:'vault kv get -field=token workshop/mons3rrat/digitalocean', returnStdout: true).trim()
     }
     triggers {
          pollSCM('H/5 * * * *')
