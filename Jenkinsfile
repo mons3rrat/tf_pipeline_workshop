@@ -1,8 +1,9 @@
  pipeline {
     agent any
     environment {
-        VAULT_ADDR="http://178.128.150.71:8200"
         TOKEN = credentials('gh-token')
+        LOGIN = sh script:"vault login -method=github token=${TOKEN}"
+        DIGITALOCEAN_TOKEN= sh(script:'vault kv get -field=token workshop/mons3rrat/digitalocean', returnStdout: true).trim()
     }
     triggers {
          pollSCM('H/5 * * * *')
@@ -11,20 +12,13 @@
         stage('init'){
           when { expression { env.BRANCH_NAME ==~ /dev.*/ || env.BRANCH_NAME ==~ /PR.*/ || env.BRANCH_NAME ==~ /feat.*/ } }
           steps{
-              
             sh 'cd terraform && terraform init -input=false'    
           }
         }
         stage('validate'){
           when { expression { env.BRANCH_NAME ==~ /dev.*/ || env.BRANCH_NAME ==~ /PR.*/ || env.BRANCH_NAME ==~ /feat.*/ } }
           steps{
-            sh '''
-                vault login -method=github token=${TOKEN}
-                export DIGITALOCEAN_TOKEN=$(vault kv get -field=token workshop/mons3rrat/digitalocean)
-                cd terraform && terraform validate
-                
-               '''
-                
+            sh 'cd terraform && terraform validate'    
           }
         }
         stage('plan and create PR'){
